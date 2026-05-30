@@ -5,7 +5,8 @@ import User from "@/models/User";
 import Batch from "@/models/Batch";
 import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
-import ServerConfig from "@/models/ServerConfig"; // at the top if not already imported
+import ServerConfig from "@/models/ServerConfig";
+import { checkRateLimit, getClientIp } from "@/utils/rateLimit";
 
 import crypto from "crypto";
 
@@ -89,6 +90,19 @@ export default async function handler(
     return res.status(400).json({
       success: false,
       message: "Phone number and OTP are required",
+    });
+  }
+
+  const ip = getClientIp(req.headers as Record<string, string | string[] | undefined>);
+  const rateLimitKey = `verify-otp:${ip}:${String(phoneNumber).replace(/\s/g, "")}`;
+  const rateLimit = checkRateLimit(rateLimitKey, {
+    windowMs: 10 * 60 * 1000,
+    maxRequests: 5,
+  });
+  if (!rateLimit.allowed) {
+    return res.status(429).json({
+      success: false,
+      message: `Too many OTP attempts. Please wait ${rateLimit.retryAfterSeconds} seconds before trying again.`,
     });
   }
 

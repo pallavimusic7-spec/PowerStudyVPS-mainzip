@@ -3,6 +3,7 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import ServerConfig from "@/models/ServerConfig";
 import { getHeaders } from "@/utils/auth";
+import { checkRateLimit, getClientIp } from "@/utils/rateLimit";
 
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
@@ -54,6 +55,19 @@ export default async function handler(
     return res
       .status(400)
       .json({ success: false, message: "Phone number is required" });
+  }
+
+  const ip = getClientIp(req.headers as Record<string, string | string[] | undefined>);
+  const rateLimitKey = `login:${ip}:${String(phoneNumber).replace(/\s/g, "")}`;
+  const rateLimit = checkRateLimit(rateLimitKey, {
+    windowMs: 10 * 60 * 1000,
+    maxRequests: 5,
+  });
+  if (!rateLimit.allowed) {
+    return res.status(429).json({
+      success: false,
+      message: `Too many OTP requests. Please wait ${rateLimit.retryAfterSeconds} seconds before trying again.`,
+    });
   }
 
   let normalizedPhone: string;
