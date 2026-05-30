@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { Clock } from "lucide-react"; // Or any clock icon lib
+import { Clock, Play } from "lucide-react";
 
 interface LiveClassCardProps {
   teacherName: string;
@@ -12,6 +12,12 @@ interface LiveClassCardProps {
   priority?: boolean;
 }
 
+const tagConfig: Record<string, { bg: string; text: string; dot?: string }> = {
+  LIVE:     { bg: "bg-red-500",     text: "text-white",         dot: "bg-white animate-pulse" },
+  UPCOMING: { bg: "bg-primary/10",  text: "text-primary"        },
+  ENDED:    { bg: "bg-muted",       text: "text-muted-foreground" },
+};
+
 const LiveClassCard: React.FC<LiveClassCardProps> = ({
   teacherName,
   teacherImage = "/assets/img/teacher-placeholder.png",
@@ -21,70 +27,50 @@ const LiveClassCard: React.FC<LiveClassCardProps> = ({
   onClick,
   priority = false,
 }) => {
+  const tagKey = tag?.toUpperCase() || "UPCOMING";
+  const cfg = tagConfig[tagKey] || { bg: "bg-muted", text: "text-muted-foreground" };
+
   return (
     <div
-      className="bg-background border p-2 rounded-md shadow-md hover:shadow-lg transition cursor-pointer select-none overflow-hidden"
-      style={{
-        width: "220px",
-        minWidth: "220px",
-        maxWidth: "220px",
-      }}
+      className="bg-card border rounded-xl overflow-hidden hover:shadow-md transition-all duration-200 cursor-pointer select-none flex flex-col group"
+      style={{ width: 200, minWidth: 200, maxWidth: 200 }}
       onClick={onClick}
     >
-      {/* Top Image with Background */}
-      <div
-        className="relative w-full h-28 bg-center bg-cover"
-        style={{
-          backgroundImage:
-            "url('https://study-mf.pw.live/static/image/teacherbg.807b2b2f.png')",
-        }}
-      >
+      {/* Teacher image */}
+      <div className="relative h-28 bg-muted overflow-hidden">
         <Image
           src={teacherImage}
-          alt={teacherName}
+          alt={teacherName || "Teacher"}
           fill
           style={{ objectFit: "contain" }}
           draggable={false}
           priority={priority}
         />
-        {/* Name Overlay */}
-        {teacherName?.trim() && (
-          <div className="absolute capitalize bottom-0 w-full bg-foreground bg-opacity-90 text-background text-sm font-medium text-center py-1">
-            {teacherName}
+        {/* Play overlay on hover */}
+        <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 flex items-center justify-center transition-all duration-200">
+          <div className="w-9 h-9 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 scale-75 group-hover:scale-100 transition-all duration-200 shadow">
+            <Play className="w-4 h-4 text-primary fill-primary ml-0.5" />
           </div>
+        </div>
+        {/* Tag */}
+        <div className="absolute top-2 left-2">
+          <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${cfg.bg} ${cfg.text}`}>
+            {cfg.dot && <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />}
+            {tag}
+          </span>
+        </div>
+      </div>
+
+      {/* Info */}
+      <div className="p-3 flex flex-col gap-1 flex-1">
+        <p className="text-xs font-semibold line-clamp-2 text-foreground leading-snug">{subject}</p>
+        {teacherName?.trim() && (
+          <p className="text-[11px] text-muted-foreground truncate">{teacherName}</p>
         )}
-      </div>
-
-      {/* Status + Time */}
-      <div className="flex justify-between items-center py-3 text-xs uppercase">
-        <span
-          className={`px-2 py-1 rounded-md font-medium ${
-            tag.toUpperCase() === "LIVE"
-              ? "bg-red-600 text-white"
-              : tag.toUpperCase() === "UPCOMING"
-              ? "bg-purple-600 text-purple-100" // my favorite color is purple 😊
-              : tag.toUpperCase() === "ENDED"
-              ? "bg-emerald-500 text-green-100"
-              : "bg-blue-600 text-blue-100"
-          }`}
-        >
-          {tag}
-        </span>
-
-        <span
-          className="flex items-center
-         text-muted-foreground
-
-         gap-1 uppercase"
-        >
-          <Clock size={14} className="stroke-[2.5]" />
+        <div className="flex items-center gap-1 mt-auto pt-1 text-[11px] text-muted-foreground">
+          <Clock className="w-3 h-3 shrink-0" />
           {startTime}
-        </span>
-      </div>
-
-      {/* Subject */}
-      <div className=" py-1 text-sm font-semibold text-foreground text-center border border-t-1 border-x-0  border-b-0 ">
-        {subject}
+        </div>
       </div>
     </div>
   );

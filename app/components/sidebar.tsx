@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Contact, GraduationCap, Presentation, Send,BookOpenCheck } from "lucide-react";
+import {
+  BookOpen, Contact, GraduationCap, Presentation,
+  Send, BookOpenCheck, X,
+} from "lucide-react";
 import Image from "next/image";
 
 interface SidebarProps {
@@ -25,91 +28,106 @@ export function Sidebar({
   const pathname = usePathname();
 
   const sidebarItems = [
-    { icon: BookOpen, text: "Study", href: "/study/" },
-    { icon: Presentation, text: "Batches", href: "/study/batches" },
-    { icon: GraduationCap, text: "My Batches", href: "/study/mybatches" },
-    { icon: Send, text: "Join Telegram", href: tgChannel || "" },
-    { icon: BookOpenCheck, text: "Book Library", href: BookLibrary || "" },
-    { icon: Contact, text: "Contact Us", href: "/contact" },
+    { icon: BookOpen,      text: "Dashboard",    href: "/study/"          },
+    { icon: Presentation,  text: "All Courses",  href: "/study/batches"   },
+    { icon: GraduationCap, text: "My Courses",   href: "/study/mybatches" },
+    { icon: Send,          text: "Telegram",     href: tgChannel || ""    },
+    { icon: BookOpenCheck, text: "Book Library", href: BookLibrary || ""  },
+    { icon: Contact,       text: "Contact",      href: "/contact"         },
   ];
+
+  const isActive = (href: string) => {
+    if (href === "/study/") return pathname === "/study" || pathname === "/study/";
+    if (href === "/study/batches")
+      return pathname === "/study/batches" || !!pathname?.startsWith("/study/batches/");
+    if (href === "/study/mybatches")
+      return pathname === "/study/mybatches" || !!pathname?.startsWith("/study/mybatches/");
+    return pathname === href;
+  };
 
   return (
     <>
-      {/* Backdrop for mobile */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 xl:hidden"
+          className="fixed inset-0 bg-black/40 z-40 xl:hidden backdrop-blur-sm"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* Sidebar container */}
       <aside
         className={`
-    z-50 w-64 bg-background border-r shadow-md
-    transform transition-transform duration-200 ease-in-out
-    ${
-      isMobileMenuOpen
-        ? "fixed top-0 left-0 translate-x-0 h-full"
-        : "fixed top-0 left-0 -translate-x-full h-full"
-    }
-    xl:sticky xl:top-0 xl:translate-x-0 xl:h-screen xl:z-auto
-  `}
+          z-50 w-60 bg-card border-r flex flex-col
+          transform transition-transform duration-200 ease-in-out
+          ${isMobileMenuOpen
+            ? "fixed top-0 left-0 translate-x-0 h-full shadow-2xl"
+            : "fixed top-0 left-0 -translate-x-full h-full"}
+          xl:sticky xl:top-0 xl:translate-x-0 xl:h-screen xl:z-auto xl:shadow-none
+        `}
       >
-        {/* Logo */}
-        <div className="p-4 border-b sticky top-0 bg-background z-10 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full dark:bg-foreground overflow-hidden">
-            <Image
-              src={sidebarLogoUrl || "/assets/img/logo.png"}
-              alt={sidebarTitle || "SATISH ~ DEV"}
-              width={40}
-              height={40}
-              priority={true}
-            />
+        {/* Logo area */}
+        <div className="h-16 px-4 border-b flex items-center gap-3 shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 overflow-hidden flex items-center justify-center shrink-0">
+            {sidebarLogoUrl ? (
+              <Image
+                src={sidebarLogoUrl}
+                alt={sidebarTitle || "Logo"}
+                width={32}
+                height={32}
+                priority
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <BookOpen className="w-4 h-4 text-primary" />
+            )}
           </div>
-          <span className="font-semibold">{sidebarTitle}</span>
-          <GraduationCap />
+          <span className="font-bold text-sm truncate flex-1">
+            {sidebarTitle || "EduFlow"}
+          </span>
+          <button
+            className="xl:hidden text-muted-foreground hover:text-foreground transition-colors p-1"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="p-2 space-y-2 overflow-y-auto h-[calc(100vh-5rem)]">
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto p-3 space-y-0.5">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-3 py-2 mt-1">
+            Navigation
+          </p>
           {sidebarItems.map((item) => {
-            let isActive = false;
-
-            if (item.href === "/study/") {
-              // Only active if pathname is exactly /study or /study/
-              isActive = pathname === "/study" || pathname === "/study/";
-            } else if (item.href === "/study/batches") {
-              // Active if pathname starts with /study/batches
-              isActive =
-                pathname === "/study/batches" ||
-                pathname?.startsWith("/study/batches/") || false;
-            } else if (item.href === "/study/mybatches") {
-              // Active if pathname starts with /study/mybatches
-              isActive =
-                pathname === "/study/mybatches" ||
-                pathname?.startsWith("/study/mybatches/") || false;
-            } else {
-              // Exact match for other items
-              isActive = pathname === item.href;
-            }
-
+            const active = isActive(item.href);
             return (
-              <Link key={item.text} href={item.href as string}>
+              <Link
+                key={item.text}
+                href={item.href as string}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 <div
-                  className={`flex items-center text-foreground gap-3 px-4 py-3 rounded-lg cursor-pointer text-sm transition-colors duration-200 ${
-                    isActive
-                      ? "bg-foreground/90 !text-background"
-                      : "hover:bg-foreground/20 text-background"
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                   }`}
                 >
-                  <item.icon className="w-5 h-5 flex-shrink-0" />
+                  <item.icon className="w-4 h-4 shrink-0" />
                   <span>{item.text}</span>
+                  {active && (
+                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-foreground/60" />
+                  )}
                 </div>
               </Link>
             );
           })}
         </nav>
+
+        {/* Footer */}
+        <div className="p-3 border-t shrink-0">
+          <div className="bg-primary/5 rounded-lg px-3 py-2 text-xs text-muted-foreground text-center">
+            {sidebarTitle || "EduFlow"}
+          </div>
+        </div>
       </aside>
     </>
   );

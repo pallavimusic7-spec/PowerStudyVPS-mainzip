@@ -1,15 +1,9 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Sun,
-  LogOut,
-  Menu,
-  User,
-  GraduationCap,
-  ChevronLeft,
-  Moon,
-  Computer,
+  Sun, LogOut, Menu, ChevronLeft, Moon, Computer,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -21,24 +15,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-import { jwtDecode } from "jwt-decode";
-interface JwtPayload {
-  UserName?: string;
-  name?: string;
-  PhotoUrl?: string;
-  [key: string]: any;
-}
-
 interface HeaderProps {
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (open: boolean) => void;
 }
+
 type Theme = "LIGHT" | "DARK" | "SYSTEM";
 
 export function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   const router = useRouter();
   const [theme, setTheme] = useState<Theme>("SYSTEM");
-
   const [user, setUser] = useState<{
     name?: string;
     telegramId?: string;
@@ -46,180 +32,142 @@ export function Header({ isMobileMenuOpen, setIsMobileMenuOpen }: HeaderProps) {
   } | null>(null);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("USER_THEME") as Theme | null;
-
-    if (
-      savedTheme === "LIGHT" ||
-      savedTheme === "DARK" ||
-      savedTheme === "SYSTEM"
-    ) {
-      setTheme(savedTheme);
+    const saved = localStorage.getItem("USER_THEME") as Theme | null;
+    if (saved === "LIGHT" || saved === "DARK" || saved === "SYSTEM") {
+      setTheme(saved);
     } else {
-      // Not found or invalid, default remains SYSTEM
       localStorage.setItem("USER_THEME", "SYSTEM");
     }
   }, []);
 
   useEffect(() => {
     const root = document.documentElement;
-
     const apply = (t: Theme) => {
-      if (t === "DARK") {
-        root.classList.add("dark");
-      } else if (t === "LIGHT") {
-        root.classList.remove("dark");
-      } else {
-        const prefersDark = window.matchMedia(
-          "(prefers-color-scheme: dark)"
-        ).matches;
+      if (t === "DARK") root.classList.add("dark");
+      else if (t === "LIGHT") root.classList.remove("dark");
+      else {
+        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
         root.classList.toggle("dark", prefersDark);
       }
     };
-
     apply(theme);
     localStorage.setItem("USER_THEME", theme);
-
     if (theme === "SYSTEM") {
       const media = window.matchMedia("(prefers-color-scheme: dark)");
-      const handler = (e: MediaQueryListEvent) => {
-        root.classList.toggle("dark", e.matches);
-      };
+      const handler = (e: MediaQueryListEvent) => root.classList.toggle("dark", e.matches);
       media.addEventListener("change", handler);
       return () => media.removeEventListener("change", handler);
     }
   }, [theme]);
 
-  const handleLogout = async () => {
-    try {
-      // Call logout API to clear cookies server-side
-      const res = await fetch("/api/logout", {
-        method: "POST",
-        credentials: "include", // important to send cookies
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to logout");
-      }
-
-      // Clear localStorage client-side
-      localStorage.clear();
-
-      // Redirect to login or home page
-      router.push("/auth");
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
   useEffect(() => {
     const storedUser = localStorage.getItem("USER_DATA");
     if (storedUser) {
       try {
-        const parsedUser = JSON.parse(storedUser);
+        const p = JSON.parse(storedUser);
         setUser({
-          name:
-            parsedUser.name && parsedUser.name.trim() !== ""
-              ? parsedUser.name
-              : "There",
-          telegramId: parsedUser.telegramId,
-          photoUrl: parsedUser.photoUrl, // no fallback here
+          name: p.name?.trim() || "User",
+          telegramId: p.telegramId,
+          photoUrl: p.photoUrl,
         });
-      } catch (error) {
-        console.error("Failed to parse user from localStorage:", error);
-        setUser({
-          name: "There",
-          photoUrl: "",
-        });
+      } catch {
+        setUser({ name: "User", photoUrl: "" });
       }
     } else {
-      setUser({
-        name: "There",
-        photoUrl: "",
-      });
+      setUser({ name: "User", photoUrl: "" });
     }
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      const res = await fetch("/api/logout", { method: "POST", credentials: "include" });
+      if (!res.ok) throw new Error("Failed to logout");
+      localStorage.clear();
+      router.push("/auth");
+    } catch {
+      console.error("Logout failed");
+    }
+  };
+
+  const themeIcon = theme === "LIGHT"
+    ? <Sun className="h-4 w-4" />
+    : theme === "DARK"
+    ? <Moon className="h-4 w-4" />
+    : <Computer className="h-4 w-4" />;
+
   return (
-    <header className="sticky top-0 z-30 bg-background/50  backdrop-blur border-b p-2 sm:p-4 flex items-center justify-between divshadow">
-      <div className="flex items-center gap-2 bg-background/50 rounded-lg sm:px-2 py-2 md:ml-0">
-        {/* Mobile Menu Button */}
+    <header className="sticky top-0 z-30 h-16 bg-card/80 backdrop-blur border-b flex items-center justify-between px-4 gap-4">
+      {/* Left */}
+      <div className="flex items-center gap-2">
         <Button
           variant="ghost"
           size="icon"
-          className="xl:hidden"
+          className="xl:hidden h-8 w-8"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          <Menu className="h-6 w-6" />
+          <Menu className="h-5 w-5" />
         </Button>
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4" />
           Back
         </button>
       </div>
 
-      <div className="flex items-center gap-4">
+      {/* Right */}
+      <div className="flex items-center gap-2">
+        {/* Theme switcher */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <div className="">
-              {theme === "LIGHT" ? (
-                <Sun className="h-5 w-5" />
-              ) : (
-                <Moon className="h-5 w-5" />
-              )}
-            </div>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+              {themeIcon}
+            </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem
-              onClick={() => setTheme("LIGHT")}
-              className="cursor-pointer"
-            >
-              <Sun className="mr-2 h-4 w-4" />
-              <span>Light</span>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem onClick={() => setTheme("LIGHT")} className="cursor-pointer gap-2">
+              <Sun className="h-4 w-4" /> Light
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setTheme("DARK")}
-              className="cursor-pointer"
-            >
-              <Moon className="mr-2 h-4 w-4" />
-              <span>Dark</span>
+            <DropdownMenuItem onClick={() => setTheme("DARK")} className="cursor-pointer gap-2">
+              <Moon className="h-4 w-4" /> Dark
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => setTheme("SYSTEM")}
-              className="cursor-pointer"
-            >
-              <Computer className="mr-2 h-4 w-4" />
-              <span>System</span>
+            <DropdownMenuItem onClick={() => setTheme("SYSTEM")} className="cursor-pointer gap-2">
+              <Computer className="h-4 w-4" /> System
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <span className="hidden sm:inline truncate max-w-40 overflow-hidden text-ellipsis whitespace-nowrap">
+        {/* User greeting */}
+        <span className="hidden sm:block text-sm text-muted-foreground truncate max-w-[140px]">
           Hi, {user?.name}
         </span>
 
+        {/* Avatar + logout */}
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Avatar>
-              <AvatarImage src={user?.photoUrl} />
-              <AvatarFallback>
-                {user?.name && user.name.length > 0
-                  ? user.name.slice(0, 2).toUpperCase()
-                  : "SR"}
-              </AvatarFallback>
-            </Avatar>
+          <DropdownMenuTrigger asChild>
+            <button className="focus:outline-none rounded-full ring-2 ring-transparent hover:ring-primary/30 transition-all">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user?.photoUrl} />
+                <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
+                  {user?.name ? user.name.slice(0, 2).toUpperCase() : "U"}
+                </AvatarFallback>
+              </Avatar>
+            </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-48">
+            <div className="px-3 py-2 border-b">
+              <p className="text-xs font-semibold truncate">{user?.name}</p>
+              <p className="text-xs text-muted-foreground">Student</p>
+            </div>
             <DropdownMenuItem
               onClick={handleLogout}
-              className="
-            cursor-pointer text-red-500"
+              className="cursor-pointer text-destructive focus:text-destructive gap-2 mt-1"
             >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Log out</span>
+              <LogOut className="h-4 w-4" />
+              Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

@@ -2,73 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 213 31% 7%;
+    --background: 210 20% 98%;
+    --foreground: 222 25% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 213 31% 7%;
+    --card-foreground: 222 25% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 213 31% 7%;
+    --popover-foreground: 222 25% 12%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 221 83% 53%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 210 20% 94%;
+    --secondary-foreground: 222 25% 12%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 210 20% 94%;
+    --muted-foreground: 215 16% 50%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 213 31% 7%;
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 221 83% 53%;
 
-    --radius: 0.5rem;
-
-    --fill: #332e56;
-    --gradient-1: #edebfe;
-    --gradient-2: #b2a9ff;
-    --gradient-3: #a49bf2;
+    --radius: 0.75rem;
   }
 
   .dark {
-    --background: 213 31% 7%;
-    --foreground: 210 40% 98%;
+    --background: 222 25% 9%;
+    --foreground: 210 40% 96%;
 
-    --card: 213 31% 7%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 25% 12%;
+    --card-foreground: 210 40% 96%;
 
-    --popover: 213 31% 7%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 25% 12%;
+    --popover-foreground: 210 40% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 222 25% 9%;
 
-    --secondary: 210 13% 27%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 222 25% 16%;
+    --secondary-foreground: 210 40% 96%;
 
-    --muted: 210 13% 27%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 222 25% 16%;
+    --muted-foreground: 215 20% 58%;
 
-    --accent: 210 13% 27%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62% 38%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 210 13% 27%;
-    --input: 210 13% 27%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 222 25% 18%;
+    --input: 222 25% 18%;
+    --ring: 217 91% 60%;
   }
 }
 
@@ -78,29 +72,30 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
-#root,
-body,
-html {
+
+#root, body, html {
   height: 100%;
-  /* overflow: hidden; */
   width: 100%;
 }
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
-.player,
-.player .video-js {
+
+/* Player */
+.player, .player .video-js {
   height: 100%;
   width: 100%;
 }
+
 .interactive-layer-wrapper {
   --tw-text-opacity: 1;
   bottom: 0;
-  color: #fff;
   color: rgb(255 255 255 / var(--tw-text-opacity, 1));
   display: flex;
   flex-direction: column;
@@ -110,11 +105,6 @@ html {
   top: 0;
   z-index: 1;
 }
-/* PLAYER */
-/* div#vjs_video_3 {
-    height: 100%;
-    width: 100%;
-} */
 
 .vjs-poster {
   background-size: cover !important;
@@ -126,89 +116,34 @@ html {
 .player-header {
   background: linear-gradient(0deg, #0000 0, #0000004f);
 }
-#ytp-caption-window-container {
-  display: none;
+#ytp-caption-window-container { display: none; }
+.ytp-caption-window-container { display: none; }
+.caption-window .ytp-caption-window-bottom .ytp-caption-window-rollup { display: none; }
+.vjs-youtube .vjs-poster { display: none !important; background: none !important; }
+
+/* Card shadow utility */
+.card-shadow {
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
 }
-.ytp-caption-window-container {
-  display: none;
-}
-.caption-window .ytp-caption-window-bottom .ytp-caption-window-rollup {
-  display: none;
-}
-/* styles/globals.css or module */
-.vjs-youtube .vjs-poster {
-  display: none !important;
-  background: none !important;
+.card-shadow-md {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
 }
 
-/* Custom CSS */
+/* Kept for backward compat */
 .divshadow {
-  @apply shadow-[var(--tw-ring-offset-shadow,0_0_#0000),var(--tw-ring-shadow,0_0_#0000),var(--tw-shadow)];
-  --tw-shadow: 0px 1px 8px rgba(0, 0, 0, 0.08);
-  --tw-shadow-colored: 0px 1px 8px var(--tw-shadow-color);
-  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
-    var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
 }
+
 /* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 1px;
-  height: 1px;
-}
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: hsl(var(--muted-foreground)); }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 5px;
-}
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #666;
-}
-
-@keyframes rotate-fwd {
-  0% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(90deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
-}
-
-.animate-rotate-fwd {
-  animation: rotate-fwd 0.3s ease-in-out;
-}
-
-@keyframes rotate-back {
-  0% {
-    transform: rotate(0deg);
-  }
-  50% {
-    transform: rotate(-90deg);
-  }
-  100% {
-    transform: rotate(0deg);
-  }
-}
-
-.animate-rotate-back {
-  animation: rotate-back 0.3s ease-in-out;
-}
-.custom-slider::-webkit-slider-thumb {
-  appearance: none;
-  height: 14px;
-  width: 14px;
-  border-radius: 9999px;
-  background-color: #ffffff; /* Tailwind's blue-500 */
-  cursor: pointer;
-  border: none;
-}
+/* Video player controls */
 .vjs-progress-control {
   bottom: 2.18em;
   cursor: pointer;
@@ -218,54 +153,56 @@ html {
   right: 0;
   width: calc(100% - 1.5em);
 }
-.vjs-progress-control .vjs-progress-holder {
-  height: 0.96em;
-  outline: 0;
-  position: relative;
-  width: 100%;
-}
-.custom-slider::-moz-range-thumb {
-  height: 14px;
-  width: 14px;
+.vjs-progress-control .vjs-progress-holder { height: 0.96em; outline: 0; position: relative; width: 100%; }
+.custom-slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 14px; width: 14px;
   border-radius: 9999px;
   background-color: #ffffff;
-  cursor: pointer;
-  border: none;
+  cursor: pointer; border: none;
+}
+.custom-slider::-moz-range-thumb {
+  height: 14px; width: 14px;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  cursor: pointer; border: none;
 }
 .vjs-progress-control .vjs-progress-holder:before {
-  background-color: #fff6;
-  content: "";
-  display: block;
-  width: 100%;
+  background-color: #fff6; content: ""; display: block; width: 100%;
 }
 .vjs-progress-control .vjs-progress-holder:before,
 .vjs-progress-control .vjs-progress-holder > div {
-  height: 0.2em;
-  margin: 0.32em auto;
-  position: absolute;
+  height: 0.2em; margin: 0.32em auto; position: absolute;
+}
+.vjs-time-control { font-size: 0.8em; line-height: 1em; }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 0.5s ease forwards; }
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--secondary)) 50%, hsl(var(--muted)) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
 }
 
-.vjs-time-control {
-  font-size: 0.8em;
-  line-height: 1em;
+@keyframes rotate-fwd {
+  0%   { transform: rotate(0deg); }
+  50%  { transform: rotate(90deg); }
+  100% { transform: rotate(0deg); }
 }
+.animate-rotate-fwd { animation: rotate-fwd 0.3s ease-in-out; }
 
-.bg-fill {
-  background-color: #332e56;
-  background-color: var(--fill);
+@keyframes rotate-back {
+  0%   { transform: rotate(0deg); }
+  50%  { transform: rotate(-90deg); }
+  100% { transform: rotate(0deg); }
 }
-
-.bg-gradient-2 {
-  background-color: #b2a9ff;
-  background-color: var(--gradient-2);
-}
-/* Hide scrollbar but allow scrolling */
-.no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none;    /* Firefox */
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
-}
-
+.animate-rotate-back { animation: rotate-back 0.3s ease-in-out; }

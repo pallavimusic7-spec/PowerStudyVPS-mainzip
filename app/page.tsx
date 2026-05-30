@@ -1,156 +1,126 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { ArrowRight, BookOpen, Zap, Shield, Users } from "lucide-react";
 
 export default function Home() {
-  const [serverInfo, setServerInfo] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [appName, setAppName] = useState(process.env.NEXT_PUBLIC_APP_NAME || "EduFlow");
 
   useEffect(() => {
-    async function fetchServerInfo() {
-      try {
-        const res = await fetch("/api/auth/serverInfo");
-        if (!res.ok) throw new Error("Failed to fetch server info");
-        const data = await res.json();
-        setServerInfo(data);
-      } catch (err) {
-        setError("Could not load server info");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchServerInfo();
+    fetch("/api/auth/serverInfo")
+      .then((r) => r.json())
+      .then((d) => { if (d?.webName) setAppName(d.webName); })
+      .catch(() => {});
   }, []);
 
-  // Use sidebarTitle as webName if available, else fallback
-  const appName = serverInfo?.webName || process.env.NEXT_PUBLIC_APP_NAME || "PW Quantum";
-  const fullText = `Welcome to ${appName}`;
-  const phrases = [
-    { text: `Welcome to ${appName}`, color: "!text-cyan-300" },
-    { text: "Your Study Companion", color: "!text-violet-400" },
-    { text: "Learn. Code. Grow.", color: "!text-emerald-500" },
+  const features = [
+    { icon: BookOpen, title: "All Batches",   desc: "Access every course in one place" },
+    { icon: Zap,      title: "Live Classes",  desc: "Real-time interactive sessions"   },
+    { icon: Shield,   title: "Secure Access", desc: "Your data stays private"          },
+    { icon: Users,    title: "Community",     desc: "Learn together with peers"        },
   ];
 
-  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
-  const [displayedText, setDisplayedText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [typingSpeed, setTypingSpeed] = useState(150);
-
-  useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
-    const currentPhrase = phrases[currentPhraseIndex].text;
-
-    const handleTyping = () => {
-      if (!isDeleting) {
-        // Typing forward
-        setDisplayedText(currentPhrase.slice(0, displayedText.length + 1));
-
-        if (displayedText.length + 1 === currentPhrase.length) {
-          // Pause before deleting
-          setIsDeleting(true);
-          setTypingSpeed(1000);
-        } else {
-          setTypingSpeed(150);
-        }
-      } else {
-        // Deleting backward
-        setDisplayedText(currentPhrase.slice(0, displayedText.length - 1));
-
-        if (displayedText.length - 1 === 0) {
-          // Move to next phrase after pause
-          setIsDeleting(false);
-          setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length);
-          setTypingSpeed(500);
-        } else {
-          setTypingSpeed(100);
-        }
-      }
-    };
-
-    timeoutId = setTimeout(handleTyping, typingSpeed);
-
-    return () => clearTimeout(timeoutId);
-  }, [displayedText, isDeleting, typingSpeed, currentPhraseIndex, phrases]);
-
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-      {/* Header */}
-      <header className="w-full bg-gray-900 shadow-md">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-center">
-          <h1 className="text-xl font-bold text-purple-400">{appName}</h1>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Nav */}
+      <nav className="border-b bg-background/80 backdrop-blur sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-lg">{appName}</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/auth"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Sign in
+            </Link>
+            <Link
+              href="/study"
+              className="text-sm font-medium bg-primary text-primary-foreground px-4 py-2 rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Dashboard
+            </Link>
+          </div>
         </div>
-      </header>
+      </nav>
 
-      {/* Main Content */}
-      <main className="flex-grow flex flex-col justify-center items-center px-6 text-center p-6 animate-fadeSlideUp">
-        <h2
-          className={`text-5xl font-extrabold mb-6 tracking-tight bg-clip-text text-transparent  min-h-[3rem] ${phrases[currentPhraseIndex].color}`}
-        >
-          {displayedText}
-          <span className="blinking-cursor">|</span>
-        </h2>
+      {/* Hero */}
+      <main className="flex-1">
+        <div className="max-w-6xl mx-auto px-6 py-20 md:py-32 grid md:grid-cols-2 gap-12 items-center">
+          <div className="animate-fade-up">
+            <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-semibold px-3 py-1.5 rounded-full mb-6">
+              <Zap className="w-3.5 h-3.5" />
+              Smart Learning Platform
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-5 text-foreground">
+              Learn smarter,<br />
+              <span className="text-primary">grow faster.</span>
+            </h1>
+            <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+              Access all your courses, live classes, and study materials in one clean, distraction-free platform.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/auth"
+                className="flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity shadow-sm"
+              >
+                Get Started <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/study/batches"
+                className="flex items-center gap-2 border bg-background px-6 py-3 rounded-xl font-semibold hover:bg-secondary transition-colors"
+              >
+                Browse Courses
+              </Link>
+            </div>
+          </div>
 
-        <p className="max-w-md mb-12 text-gray-300">
-          Your personal study companion. Log in to start or continue your
-          learning journey.
-        </p>
+          {/* Decorative card */}
+          <div className="hidden md:flex items-center justify-center">
+            <div className="relative w-80 h-80">
+              <div className="absolute inset-0 bg-primary/10 rounded-3xl rotate-6" />
+              <div className="absolute inset-4 bg-primary/20 rounded-3xl -rotate-3" />
+              <div className="absolute inset-8 bg-card border rounded-2xl shadow-lg flex flex-col items-center justify-center gap-4 p-6">
+                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <BookOpen className="w-7 h-7 text-primary" />
+                </div>
+                <p className="text-sm font-semibold text-center">Your next class is waiting</p>
+                <div className="w-full space-y-2">
+                  {[80, 60, 90].map((w, i) => (
+                    <div key={i} className="h-2 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full bg-primary rounded-full" style={{ width: `${w}%` }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-        <div className="flex gap-6 flex-wrap text-center justify-center">
-          <a
-            href="/auth"
-            className="px-8 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 transition font-semibold text-lg shadow-lg"
-          >
-            Login
-          </a>
-
-          <a
-            href="/study"
-            className="px-8 py-3 rounded-lg border border-purple-600 hover:bg-purple-700 hover:text-white transition font-semibold text-lg shadow-lg"
-          >
-            Study
-          </a>
+        {/* Feature cards */}
+        <div className="max-w-6xl mx-auto px-6 pb-20">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {features.map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="bg-card border rounded-xl p-5 hover:shadow-md transition-shadow">
+                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-semibold text-sm mb-1">{title}</h3>
+                <p className="text-xs text-muted-foreground">{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full bg-gray-900 text-gray-500 text-center py-4 border-t border-gray-800">
+      <footer className="border-t py-6 text-center text-xs text-muted-foreground">
         © {new Date().getFullYear()} {appName}. All rights reserved.
       </footer>
-
-      <style jsx>{`
-        .blinking-cursor {
-          animation: blink 1s steps(2, start) infinite;
-          font-weight: 900;
-          color: #d946ef; /* purple-500 */
-          margin-left: 2px;
-        }
-        @keyframes blink {
-          0%,
-          50% {
-            opacity: 1;
-          }
-          50.01%,
-          100% {
-            opacity: 0;
-          }
-        }
-
-        @keyframes fadeSlideUp {
-          0% {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          100% {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        .animate-fadeSlideUp {
-          animation: fadeSlideUp 0.8s ease forwards;
-        }
-      `}</style>
     </div>
   );
 }
