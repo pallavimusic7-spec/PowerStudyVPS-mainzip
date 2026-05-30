@@ -4,7 +4,8 @@ import ServerConfig from "@/models/ServerConfig";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "devilboy@Supreme#Sattu@123_&^%$#@!1234567890";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) throw new Error("Missing JWT_SECRET environment variable");
 const isProd = process.env.NODE_ENV === "production";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

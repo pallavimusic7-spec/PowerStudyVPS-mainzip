@@ -28,7 +28,7 @@ async function handleGetUsers(req: NextApiRequest, res: NextApiResponse) {
     }
 
     // Verify token (optional: decode and check claims)
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "changeme");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     if (!decoded || typeof decoded !== "object" || !decoded.admin) {
       return res.status(401).json({ message: "Invalid token" });
     }
@@ -134,7 +134,7 @@ async function handleCheckTokenStatus(
       return res.status(401).json({ message: "No token provided" });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "changeme");
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!);
     if (!decoded || typeof decoded !== "object" || !decoded.admin) {
       return res.status(401).json({ message: "Invalid token" });
     }

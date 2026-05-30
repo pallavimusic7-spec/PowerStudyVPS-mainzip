@@ -39,7 +39,9 @@ if (isNaN(JWT_ACCESS_EXPIRES_SECONDS)) {
 }
 
 const JWT_REFRESH_EXPIRES_DAYS = Number(process.env.JWT_REFRESH_EXPIRES_DAYS);
-const randomId = uuidv4();
+if (isNaN(JWT_REFRESH_EXPIRES_DAYS) || JWT_REFRESH_EXPIRES_DAYS <= 0) {
+  throw new Error("Invalid or missing JWT_REFRESH_EXPIRES_DAYS environment variable");
+}
 
 type UserData = {
   id: string;
@@ -69,7 +71,8 @@ export default async function handler(
   if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-    res.setHeader("Access-Control-Allow-Origin", "*"); // restrict in production
+    const allowedOrigin = process.env.ALLOWED_ORIGIN || process.env.BASE_URL || "";
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
     return res.status(200).end();
   }
   if (req.method !== "POST") {
@@ -77,6 +80,8 @@ export default async function handler(
       .status(405)
       .json({ success: false, message: "Method not allowed" });
   }
+
+  const randomId = uuidv4();
 
   const { phoneNumber, otp } = req.body;
 
@@ -127,7 +132,7 @@ export default async function handler(
         username: phoneNumber,
         otp: otp,
         client_id: "system-admin",
-        client_secret: "KjPXuAVfC5xbmgreETNMaL7z",
+        client_secret: process.env.PW_CLIENT_SECRET || "KjPXuAVfC5xbmgreETNMaL7z",
         grant_type: "password",
         organizationId: "5eb393ee95fab7468a79d189",
         latitude: 0,
@@ -220,7 +225,7 @@ export default async function handler(
         byName: batchDetails?.byName || "Unknown",
         startDate: batchDetails?.startDate || "",
         endDate: batchDetails?.endDate || "",
-        batchStatus: !(batchDetails?.isBlocked || batch.isBlocked) || true,
+        batchStatus: !(batchDetails?.isBlocked || batch.isBlocked),
       };
       // Prepare enrolledToken
       const enrolledToken = {
@@ -294,9 +299,16 @@ export default async function handler(
     });
 
     let refreshToken = "";
-    while (true) {
-      refreshToken = crypto.randomBytes(64).toString("hex");
-      if (!(await User.findOne({ refreshToken }))) break;
+    const MAX_REFRESH_ATTEMPTS = 5;
+    for (let attempt = 0; attempt < MAX_REFRESH_ATTEMPTS; attempt++) {
+      const candidate = crypto.randomBytes(64).toString("hex");
+      if (!(await User.findOne({ refreshToken: candidate }))) {
+        refreshToken = candidate;
+        break;
+      }
+    }
+    if (!refreshToken) {
+      throw new Error("Failed to generate a unique refresh token");
     }
 
     user.refreshToken = refreshToken;
@@ -363,6 +375,6 @@ export default async function handler(
     console.error("OTP Verification Error:", err);
     return res
       .status(500)
-      .json({ success: false, message: "Server error", err });
+      .json({ success: false, message: "Internal server error" });
   }
 }

@@ -89,16 +89,18 @@ export default async function handler(
           {
             _id: { $in: affectedBatches },
             "enrolledTokens.ownerId": ownerId,
-            "enrolledTokens.refreshToken": refreshToken,
           },
           {
             $set: {
-              "enrolledTokens.$.accessToken": access,
-              "enrolledTokens.$.refreshToken": refresh,
-              "enrolledTokens.$.updatedAt": new Date(),
-              "enrolledTokens.$.tokenStatus": true,
-              "enrolledTokens.$.randomId": randomId, // ✅ Save randomId
+              "enrolledTokens.$[elem].accessToken": access,
+              "enrolledTokens.$[elem].refreshToken": refresh,
+              "enrolledTokens.$[elem].updatedAt": new Date(),
+              "enrolledTokens.$[elem].tokenStatus": true,
+              "enrolledTokens.$[elem].randomId": randomId,
             },
+          },
+          {
+            arrayFilters: [{ "elem.ownerId": ownerId }],
           }
         );
 
@@ -115,13 +117,15 @@ export default async function handler(
           {
             _id: { $in: affectedBatches },
             "enrolledTokens.ownerId": ownerId,
-            "enrolledTokens.refreshToken": refreshToken,
           },
           {
             $set: {
-              "enrolledTokens.$.tokenStatus": false,
-              "enrolledTokens.$.updatedAt": new Date(),
+              "enrolledTokens.$[elem].tokenStatus": false,
+              "enrolledTokens.$[elem].updatedAt": new Date(),
             },
+          },
+          {
+            arrayFilters: [{ "elem.ownerId": ownerId }],
           }
         );
       }
