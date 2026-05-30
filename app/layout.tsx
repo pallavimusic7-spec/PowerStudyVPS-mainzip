@@ -6,7 +6,6 @@ import { Toaster } from "sonner";
 import NetworkStatus from '@/components/NetworkStatus';
 
 import RootInitializer from "@/app/components/RootInitializer";
-import TriggerCleanup from "@/app/TriggerCleanup";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -69,7 +68,6 @@ export default async function RootLayout({
                 <NetworkStatus />
 
         <Toaster position="top-right" richColors closeButton />
-        <TriggerCleanup />
       </body>
     </html>
   );

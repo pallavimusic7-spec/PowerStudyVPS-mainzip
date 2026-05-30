@@ -11,8 +11,7 @@ import {
   User,
   ChevronDown,
   Menu,
-  X,
-  Link
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -60,14 +59,11 @@ export default function AdminLayout({ children, activePage = "dashboard" }: Admi
     setShowMobileSidebar(false);
     if (page === "settings") {
       router.push("/admin/settings");
-    } else if (page === "shortner") {
-      router.push("/admin/shortner");
     } else if (page === "users") {
       router.push("/admin/users");
     } else if (page === "batches") {
       router.push("/admin/batches");
     }
-    // Add navigation logic for other pages when implemented
   };
 
   return (
@@ -125,12 +121,6 @@ export default function AdminLayout({ children, activePage = "dashboard" }: Admi
             label="Settings" 
             active={activePage === "settings"}
             onClick={() => handleNavClick("settings")}
-          />
-          <NavItem 
-            icon={<Link className="w-5 h-5" />} 
-            label="Shortner" 
-            active={activePage === "shortner"}
-            onClick={() => handleNavClick("shortner")}
           />
         </nav>
 

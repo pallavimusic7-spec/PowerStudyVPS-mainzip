@@ -5,7 +5,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { enrollBatch, UnenrollBatch } from "@/utils/api";
 import { toast } from "sonner";
-// import { checkVerification } from "@/utils/checkVerification";
 
 import {
   UserCheck,
